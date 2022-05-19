@@ -4,7 +4,7 @@
       <div class="maincontent">
         <h1>Send us feedback</h1>
 
-        <% if (locals.errors) {%>
+        <!-- <% if (locals.errors) {%>
           <div class="alert alert-danger">
             <ul>
             <% errors.forEach(function(error) { %>
@@ -20,9 +20,13 @@
               <%= success %>
             </p>
           </div>
-        <% } %>
+        <% } %> -->
 
-        <form class="feedback-form mb-4" method="post" action="/feedback">
+        <div class="alert" id="div-alert">
+
+        </div>
+
+        <form id="feedback-form" class="feedback-form">
           <div class="form-group">
             <label for="feedback-form-name">Name</label>
             <input type="text" class="form-control" id="feedback-form-name" name="name" placeholder="Enter your name">
@@ -40,7 +44,7 @@
             <textarea type="text" placeholder="Enter your message, then hit the submit button" name="message" class="form-control"
               id="feedback-form-message" rows="6"></textarea>
           </div>
-          <button type="submit" class="btn btn-secondary float-right">Submit</button>
+          <button type="submit" id="btn-submit" class="btn btn-secondary float-right">Submit</button>
         </form>
       </div>
     </div>
@@ -48,3 +52,81 @@
     <%- include('../layouts/partials/feedbacks.ejs') %>
   </div>
 </div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/axios/0.27.2/axios.min.js"></script>
+
+<script>
+const renderSuccess = (success) => {
+  const divAlert = document.getElementById('div-alert')
+  divAlert.innerHTML = null
+  divAlert.classList.add('alert-success')
+
+  const para = document.createElement('p')
+  const text = document.createTextNode(success)
+  para.appendChild(text)
+  divAlert.appendChild(para)
+}
+const renderFeedback = ({ success, feedback = [] }) => {
+  renderSuccess(success)
+
+  const feedbacksDiv = document.getElementById('feedbacks')
+  feedbacksDiv.innerHTML = null
+
+  feedback.map((feedback) => {
+    feedbacksDiv.insertAdjacentHTML('beforeend', `<div class="feedback-item item-list media-list">
+      <div class="feedback-item media">
+        <div class="feedback-info media-body">
+          <div class="feedback-head">
+            <div class="feedback-title">${feedback.title}</div>
+            <small>by ${feedback.name}</small>
+          </div>
+          <div class="feedback-message">
+            ${feedback.message}
+          </div>
+        </div>
+      </div>
+    </div>`)
+  })
+
+  setTimeout(() => {
+    document.getElementById('div-alert').classList.remove('alert-success')
+    document.getElementById('div-alert').innerHTML = null
+  }, 3000);
+}
+const renderErrors = (errors = []) => {
+  const divAlert = document.getElementById('div-alert')
+  divAlert.innerHTML = null
+  divAlert.classList.add('alert-danger')
+
+  divAlert.insertAdjacentHTML('beforeend', '<ul id="errors-list"></ul>')
+
+  const ulErrors = document.getElementById('errors-list')
+
+  errors.map((error) => {
+    ulErrors.insertAdjacentHTML('beforeend', `<li>${error.msg}</li>`)
+  })
+}
+
+function handleSubmit(event) {
+  axios({
+    url: '/feedback/api',
+    method: 'post',
+    data: {
+      name: document.getElementById('feedback-form-name').value,
+      email: document.getElementById('feedback-form-email').value,
+      title: document.getElementById('feedback-form-title').value,
+      message: document.getElementById('feedback-form-message').value,
+    }
+  })
+    .then((response) => {
+      if (response.data.errors) {
+        renderErrors(response.data.errors)
+      } else if (response.data.success) {
+        renderFeedback(response.data)
+      }
+    })
+  event.preventDefault()
+}
+
+const btn = document.getElementById('btn-submit')
+btn.addEventListener('click', handleSubmit)
+</script>
