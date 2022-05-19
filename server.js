@@ -1,9 +1,12 @@
 const express = require('express')
+const bodyParser = require('body-parser')
 const path = require('path')
 const routes = require('./routes')
 const cookieSession = require('cookie-session')
 const app = express()
 const port = 3000
+
+app.use(bodyParser.urlencoded({ extended: true }))
 
 app.set('trust proxy', 1)
 

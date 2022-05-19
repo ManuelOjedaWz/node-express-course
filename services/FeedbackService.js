@@ -30,7 +30,7 @@ class FeedbackService {
    * @param {*} title The title of the feedback message
    * @param {*} message The feedback message
    */
-  async addEntry (name, email, title, message) {
+  async addEntry ({ name, email, title, message }) {
     const data = (await this.getData()) || []
     data.unshift({ name, email, title, message })
     return writeFile(this.datafile, JSON.stringify(data))
