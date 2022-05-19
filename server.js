@@ -9,7 +9,6 @@ app.set('trust proxy', 1)
 
 const FeedbackService = require('./services/FeedbackService')
 const SpeakerService = require('./services/SpeakerService')
-
 const feedbackService = new FeedbackService('./data/feedback.json')
 const speakerService = new SpeakerService('./data/speakers.json')
 
@@ -24,7 +23,17 @@ app.use(cookieSession({
 app.set('view engine', 'ejs')
 app.set('views', path.join(__dirname, './views'))
 
+app.locals.siteName = 'ROUX Meetups'
+
 app.use(express.static(path.join(__dirname, './static')))
+app.use(async (req, res, next) => {
+  try {
+    res.locals.speakerNames = await speakerService.getNames()
+    return next()
+  } catch (error) {
+    return next(error)
+  }
+})
 
 app.use('/', routes({
   feedbackService,

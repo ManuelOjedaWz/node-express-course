@@ -4,13 +4,27 @@ const router = express.Router()
 module.exports = ({ speakerService }) => {
   router.get('/', async (req, res) => {
     const speakers = await speakerService.getList()
-    return res.json({
-      speakers
+    const artworks = await speakerService.getAllArtwork()
+
+    res.render('layouts/index', {
+      speakers,
+      artworks,
+      template: 'speakers',
+      pageTitle: 'Speakers'
     })
   })
 
-  router.post('/:speakerName', (req, res) => {
-    res.send(req.params)
+  router.get('/:speakerName', async (req, res) => {
+    const { speakerName } = req.params
+    const speaker = await speakerService.getSpeaker(speakerName)
+    const artworks = await speakerService.getArtworkForSpeaker(speakerName)
+
+    res.render('layouts/index', {
+      pageTitle: 'Speaker',
+      template: 'speaker',
+      speaker,
+      artworks
+    })
   })
   return router
 }
