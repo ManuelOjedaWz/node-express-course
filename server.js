@@ -31,6 +31,10 @@ app.use(async (req, res, next) => {
     res.locals.speakerNames = await speakerService.getNames()
     return next()
   } catch (error) {
+    res.render('layouts', {
+      pageTitle: 'An error ocurred',
+      template: 'error'
+    })
     return next(error)
   }
 })
